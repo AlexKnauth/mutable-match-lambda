@@ -13,9 +13,12 @@
          racket/format
          kw-utils/keyword-lambda
          (only-in "communication.rkt" mutable-match-lambda-clause-append)
+         "prop-object-name.rkt"
          (for-syntax racket/base
                      syntax/parse
                      (for-syntax racket/base)))
+(module+ test
+  (require rackunit))
 
 (begin-for-syntax
   (define-syntax kw (make-rename-transformer #'keyword)))
@@ -23,10 +26,10 @@
 (define (make-mutable-match-lambda #:name [name #f] . procs)
   (mutable-match-lambda-procedure name procs))
 
-(struct mutable-match-lambda-procedure (name procs)
-  #:transparent #:mutable
-  ;#:property prop:object-name ;if this gets added to racket (https://github.com/plt/racket/pull/729)
-  ;(lambda (this) (mutable-match-lambda-procedure-name this))
+(struct mutable-match-lambda-procedure (name [procs #:mutable])
+  #:transparent
+  #:property prop:object-name
+  (struct-field-index name)
   #:property prop:procedure
   (keyword-lambda (kws kw-args this . args)
     (match-define (mutable-match-lambda-procedure name procs) this)
@@ -68,5 +71,10 @@
                                              (append clause-procs
                                                      (mutable-match-lambda-procedure-procs proc))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
+(module+ test
+  (when prop:object-name-supported?
+    (define sym (gensym))
+    (check-equal? (object-name (make-mutable-match-lambda #:name sym)) sym))
+  )
