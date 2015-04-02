@@ -16,9 +16,11 @@
 
 @title{mutable-match-lambda}
 
+source code: @url["https://github.com/AlexKnauth/mutable-match-lambda"]
+
 @defmodule[mutable-match-lambda]{
 
-These forms and functions allow a mutable generic procedure like this:
+These forms and functions allow mutable generic procedures like this:
 
 @examples[
   (require mutable-match-lambda racket/vector)
