@@ -1,6 +1,7 @@
 #lang racket/base
 
 (provide (struct-out mutable-match-lambda-procedure)
+         (struct-out mutable-match-lambda-procedure/else)
          make-mutable-match-lambda
          mutable-match-lambda-append
          mutable-match-lambda-copy
@@ -23,8 +24,10 @@
 (begin-for-syntax
   (define-syntax kw (make-rename-transformer #'keyword)))
 
-(define (make-mutable-match-lambda #:name [name #f] . procs)
-  (mutable-match-lambda-procedure name procs))
+(define (make-mutable-match-lambda #:name [name #f] #:else [else-proc #f] . procs)
+  (if else-proc
+      (mutable-match-lambda-procedure/else name procs else-proc)
+      (mutable-match-lambda-procedure name procs)))
 
 (struct mutable-match-lambda-procedure (name [procs #:mutable])
   #:transparent
@@ -42,6 +45,24 @@
            [else (display "(make-mutable-match-lambda" out)
                  (for ([proc (in-list procs)])
                    (fprintf out " ~v" proc))
+                 (display ")" out)]))])
+
+(struct mutable-match-lambda-procedure/else mutable-match-lambda-procedure (else-proc)
+  #:transparent
+  #:property prop:procedure
+  (keyword-lambda (kws kw-args this . args)
+    (match-define (mutable-match-lambda-procedure/else name procs else-proc) this)
+    (define proc
+      (apply mutable-match-lambda-clause-append (append procs (list else-proc)) #:name name))
+    (keyword-apply proc kws kw-args args))
+  #:methods gen:custom-write
+  [(define (write-proc this out mode)
+     (match-define (mutable-match-lambda-procedure/else name procs else-proc) this)
+     (cond [name (fprintf out "#<procedure:~a>" name)]
+           [else (display "(make-mutable-match-lambda" out)
+                 (for ([proc (in-list procs)])
+                   (fprintf out " ~v" proc))
+                 (fprintf out " #:else ~v" else-proc)
                  (display ")" out)]))])
 
 
