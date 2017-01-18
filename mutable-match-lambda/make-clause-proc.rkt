@@ -8,7 +8,7 @@
          )
 
 (require racket/match
-         kw-utils/keyword-lambda
+         kw-utils/kw-lists-lambda
          kw-utils/arity+keywords
          (only-in "communication.rkt" mutable-match-lambda-next)
          (for-syntax racket/base
@@ -22,7 +22,7 @@
   (define proc.arity+kws (procedure-arity+keywords proc))
   (procedure-reduce-arity+keywords
    (procedure-rename
-    (keyword-lambda (kws kw-args . rest-args)
+    (kw-lists-lambda kws kw-args rest-args
       (define n (length rest-args))
       (cond [(and (arity+keywords-matches? test.arity+kws n kws)
                   (arity+keywords-matches? proc.arity+kws n kws)

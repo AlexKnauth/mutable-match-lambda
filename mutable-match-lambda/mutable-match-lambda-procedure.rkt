@@ -12,7 +12,7 @@
 (require racket/list
          racket/match
          racket/format
-         kw-utils/keyword-lambda
+         kw-utils/kw-lists-lambda
          (only-in "communication.rkt" mutable-match-lambda-clause-append)
          "prop-object-name.rkt"
          (for-syntax racket/base
@@ -34,7 +34,7 @@
   #:property prop:object-name
   (struct-field-index name)
   #:property prop:procedure
-  (keyword-lambda (kws kw-args this . args)
+  (kw-lists-lambda kws kw-args (this . args)
     (match-define (mutable-match-lambda-procedure name procs) this)
     (define proc (apply mutable-match-lambda-clause-append procs #:name name))
     (keyword-apply proc kws kw-args args))
@@ -50,7 +50,7 @@
 (struct mutable-match-lambda-procedure/else mutable-match-lambda-procedure (else-proc)
   #:transparent
   #:property prop:procedure
-  (keyword-lambda (kws kw-args this . args)
+  (kw-lists-lambda kws kw-args (this . args)
     (match-define (mutable-match-lambda-procedure/else name procs else-proc) this)
     (define proc
       (apply mutable-match-lambda-clause-append (append procs (list else-proc)) #:name name))

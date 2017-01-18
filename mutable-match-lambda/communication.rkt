@@ -8,7 +8,7 @@
 (require racket/list
          racket/format
          racket/match
-         kw-utils/keyword-lambda
+         kw-utils/kw-lists-lambda
          kw-utils/arity+keywords
          )
 
@@ -24,7 +24,7 @@
           [else proc]))
   (procedure-reduce-arity+keywords
    (rename
-    (keyword-lambda (kws kw-args . args)
+    (kw-lists-lambda kws kw-args args
       (define next (make-next #:name new-name orig-fs kws kw-args args))
       (parameterize ([current-mutable-match-lambda-next next])
         (try orig-fs kws kw-args args))))
